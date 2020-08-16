@@ -1,0 +1,109 @@
+"""
+##########################################################################
+############# Solution 2 ################################################
+############################################################################
+Implementation Script for transforming the JSON service events to the suggested schema
+
+@:author: Ayo Ayibiowu
+@contact: ayo.ayibiowu@outlook.com
+
+"""
+
+import json
+import os
+from time import sleep
+
+# gets the current working director
+working_dir = os.path.dirname(__file__)
+
+# using the sample.json file
+json_file_path = os.path.join(working_dir, "sample.json")
+
+# json data
+json_data = dict()
+
+headers_col = ['id', 'time', 'version', 'product', 'application', 'applicationVersion', 'buildVersion', 'environment',
+               'backendRegion', 'origin', 'channel', 'path', 'method', 'xRequestId', 'privacyClass', 'flowId',
+               'contentCategory', 'requestId']
+
+headers_content = ['requestId', 'serviceId', 'subId', 'vin', 'serviceProviderName', 'serviceMainType', 'serviceStatus',
+                   'startTime', 'endTime', 'startLocation', 'endLocation']
+
+content_location_info = ['startLocation', 'endLocation']
+headers_location = ["longitude", "latitude"]
+
+content_name = "content"
+
+flowId_list = list()
+requestId_list = list()
+
+table_service = list()
+
+
+def extract_table_service(data):
+    """
+    Extract out the values for the cols in the suppose TABLE_SERVICE table.
+    Also add the requestId in the Content into the table as well
+    :param data: Dictionary of values
+    :return: list of values
+    """
+    return [data[col] if col is not 'requestId' else data[content_name][col] for col in headers_col]
+
+
+def parse_content_table(data):
+    """
+    Parse the content JSON data into a structured table
+    :param data: Dictionary of values with the service content
+    :return: list of values
+    """
+    data_keys = [my_keys for my_keys in data.keys()]
+    result = [data[col] if col not in content_location_info else parse_location(data, col) for col in headers_content if
+              col in data_keys]
+    # filter content without location information and add None for those content
+    # check the data_keys for location info
+    for loc in content_location_info:
+        if loc not in data_keys:
+            result.append('NULL')
+    return result
+
+
+def parse_location(data, col):
+    """
+    Helps in parsing location data containing both longitude and latitude
+    :param data:
+    :return: a serialized location data. For example: -122.410591,37.641449
+    """
+    temp = [data[col][loc_col] for loc_col in headers_location]
+    return ','.join(map(str, temp))
+
+
+if __name__ == '__main__':
+    print("Starting up: Task 2 ---- Schema Transformation")
+    sleep(1)
+
+    try:
+        # now attempt to open the JSON file
+        with open(json_file_path) as service_json:
+            json_data = json.load(service_json)
+
+        print(type(json_data))
+        print(len(json_data))
+        # print(json_data['content'])
+
+        # extract the values for the TABLE_SERVICE
+        table_service = [extract_table_service(data) for data in json_data]
+        # extract out the values for the SERVICE_CONTENT Table
+        table_service_content = [parse_content_table(data['content']) for data in json_data]
+
+        print(len(table_service_content))
+        print(len(table_service))
+
+
+
+    except KeyboardInterrupt:
+        print("Keyboard Interrupt ")
+
+    except Exception as e:
+        print("Exception occurred - ", e)
+
+print("Done here")

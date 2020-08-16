@@ -1,0 +1,40 @@
+{
+  "id": "1c33b57a-f391-4cac-a3dd-e320b70fea81",
+  "time": "2020-02-27T11:53:31.357062923Z",
+  "version": "v1.3.6",
+  "product": "ICL",
+  "application": "icl-service-app",
+  "applicationVersion": "v2.52.0",
+  "buildVersion": "v2.52.0-1-g641c4fd",
+  "environment": "production",
+  "backendRegion": "uswest2",
+  "origin": "system",
+  "channel": "partner",
+  "path": "/partner/api/v1/service-updated",
+  "method": "POST",
+  "xRequestId": "478096fb12375d5d1307b42b397efc3e6",
+  "privacyClass": "PD",
+  "flowId": "d6803e9a-3ca7-41c7-bab8-e4602541219c",
+  "contentCategory": "service_completed",
+  "content": {
+    "requestId": "f3de6287-a92a-4c51-bf7e-754b625f0839",
+    "serviceId": "ee27db12-014c-4254-b238-27d976d545b5",
+    "subId": "dd914d10-f4d4-46eb-8223-b87a891a7013",
+    "vin": "LVYBR87A891A7013",
+    "serviceProviderName": "VOLVOCARS",
+    "serviceMainType": "DeliverToCar",
+    "serviceStatus": "Completed",
+    "startTime": "2020-02-27T14:53:21Z",
+    "endTime": "2020-02-27T11:53:21Z",
+    "predictedStartTime": "2020-02-27T11:53:21Z",
+    "predictedEndTime": "2020-02-27T14:53:21Z",
+    "startLocation": {
+      "longitude": -122.034363,
+      "latitude": "37.387703"
+    },
+    "endLocation": {
+      "longitude": -122.034363,
+      "latitude": 37.387703
+    }
+  }
+}
