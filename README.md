@@ -36,6 +36,8 @@ Provide the implementation script and reasoning behind your design decision.
 
 ### Storing the Events in a Relational Format for Lng-term storage.
 A relational database with 3 tables schema design is considered as shown in the image below:
-![Schema_Design_Overview][schema_design.jpg]
+![Schema_Design_Overview](./main/assets/schema_design.jpg)
+![Schema_Design_Overview2](main/assets/schema_design.jpg)
 
-The flowkey can be used to cluster service transition together. We can use that to track how well a service. For example From 75 - 78 The service was completed successfully.
+The flowkey can be used to cluster service transition together. 
+We can use that to track how well a service. For example From 75 - 78 The service was completed successfully.
