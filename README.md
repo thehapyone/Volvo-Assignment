@@ -78,7 +78,65 @@ The binding can be installed using pip:
  - Alerts when data type of a specified field changes 
  - Alerts when data of specified field is missing
  - Alerts when the id is not unique. The id is expected to be unique.
+ - We can setup a JSON schema to evaluate that the JSON Field data have the right datatype, have an enforced field. A schema for checking the datatype for the service data is shown below:
+```
+{
+  "type": "object",
+  "properties": {
+    "id": {"type": "string"},
+    "time": {"type": "string"},
+    "version": {"type": "string"},
+    "product": {"type": "string"},
+    "application": {"type": "string"},
+    "applicationVersion": {"type": "string"},
+    "buildVersion": {"type": "string"},
+    "environment": {"type": "string"},
+    "backendRegion": {"type": "string"},
+    "origin": {"type": "string"},
+    "channel": {"type": "string"},
+    "path": {"type": "string"},
+    "method": {"type": "string"},
+    "xRequestId": {"type": "string"},
+    "privacyClass": {"type": "string"},
+    "flowId": {"type": "string"},
+    "contentCategory": {"type": "string"},
+    "content": {
+      "type": "object",
+      "properties": {
+        "requestId": {"type": "string"},
+        "serviceId": {"type": "string"},
+        "subId": {"type": "string"},
+        "vin": {"type": "string"},
+        "serviceProviderName": {"type": "string"},
+        "serviceMainType": {"type": "string"},
+        "serviceStatus": {"type": "string"},
+        "startTime": {"type": "string"},
+        "endTime": {"type": "string"},
+        "predictedStartTime": {"type": "string"},
+        "predictedEndTime": {"type": "string"},
+        "startLocation": {
+          "type": "object",
+          "properties": {
+            "longitude": {"type": "number"},
+            "latitude": {"type": "number"}
+          }
+        },
+        "endLocation": {
+          "type": "object",
+          "properties": {
+            "longitude": {"type": "number"},
+            "latitude": {"type": "number"}
+          }
+        }
+      }
+    }
+  }
+}
+```
 
+For more powerful quality checks, one can consider:
+ - Apache Griffin
+ - 
 ## Launching kafka 
 --- Starts the zookeeper service:
 bin/zookeeper-server-start.sh config/zookeeper.properties
