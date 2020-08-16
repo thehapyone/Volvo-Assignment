@@ -17,15 +17,13 @@ from time import sleep
 working_dir = os.path.dirname(__file__)
 
 # using the sample.json file
-json_file_path = os.path.join(working_dir, "sample.json")
+json_file_path = os.path.join(working_dir, "service_subset.json")
 
 # json data
 json_data = dict()
 
-headers_col = ['id', 'time', 'version', 'product', 'application', 'applicationVersion', 'buildVersion', 'environment',
-               'backendRegion', 'origin', 'channel', 'path', 'method', 'xRequestId', 'privacyClass', 'flowId',
-               'contentCategory', 'requestId']
-
+headers_col = ['id', 'time', 'version', 'product', 'backendRegion', 'xRequestId', 'privacyClass', 'flowId', 'contentCategory', 'requestId']
+headers_others = ['id', 'application', 'applicationVersion', 'buildVersion', 'environment', 'origin', 'channel', 'path', 'method']
 headers_content = ['requestId', 'serviceId', 'subId', 'vin', 'serviceProviderName', 'serviceMainType', 'serviceStatus',
                    'startTime', 'endTime', 'startLocation', 'endLocation']
 
@@ -48,6 +46,15 @@ def extract_table_service(data):
     :return: list of values
     """
     return [data[col] if col is not 'requestId' else data[content_name][col] for col in headers_col]
+
+def extract_table_service_others(data):
+    """
+    Extract out the values for the cols in the suppose TABLE_SERVICE_OTHER table.
+    Also add the requestId in the Content into the table as well
+    :param data: Dictionary of values
+    :return: list of values
+    """
+    return [data[col] for col in headers_others]
 
 
 def parse_content_table(data):
@@ -92,6 +99,8 @@ if __name__ == '__main__':
 
         # extract the values for the TABLE_SERVICE
         table_service = [extract_table_service(data) for data in json_data]
+        # extract the values for the TABLE_SERVICE_OTHERS
+        table_service_others = [extract_table_service_others(data) for data in json_data]
         # extract out the values for the SERVICE_CONTENT Table
         table_service_content = [parse_content_table(data['content']) for data in json_data]
 

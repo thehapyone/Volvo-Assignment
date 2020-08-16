@@ -30,4 +30,12 @@ For the Product Owners
 2 - Assumed that serviceMainType tells the service carried out or requested, which seems there is more than one party involved in the transaction. The serviceProviderName and some unknown client or customer, this latter information is not provided for which might be a good addon for the business analyst side of things.
 
 
+## Ideas for question 2
+Suggest a schema for storing the events in a relational format for long-term storage. The data will be consumed mainly by business analysts. 
+Provide the implementation script and reasoning behind your design decision.
+
+### Storing the Events in a Relational Format for Lng-term storage.
+A relational database with 3 tables schema design is considered as shown in the image below:
+![Schema_Design_Overview][schema_design.jpg]
+
 The flowkey can be used to cluster service transition together. We can use that to track how well a service. For example From 75 - 78 The service was completed successfully.
