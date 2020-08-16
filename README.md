@@ -30,14 +30,26 @@ For the Product Owners
 2 - Assumed that serviceMainType tells the service carried out or requested, which seems there is more than one party involved in the transaction. The serviceProviderName and some unknown client or customer, this latter information is not provided for which might be a good addon for the business analyst side of things.
 
 
-## Ideas for question 2
+## Question 2
 Suggest a schema for storing the events in a relational format for long-term storage. The data will be consumed mainly by business analysts. 
 Provide the implementation script and reasoning behind your design decision.
 
-### Storing the Events in a Relational Format for Lng-term storage.
-A relational database with 3 tables schema design is considered as shown in the image below:
-![Schema_Design_Overview](./main/assets/schema_design.jpg)
-![Schema_Design_Overview2](main/assets/schema_design.jpg)
+### Storing the Events in a Relational Format for Long-term storage.
+A relational database with 3 tables schema design is presented as shown in the image below:
+![Schema_Design_Overview](main/assets/schema_design.jpg)
 
+Schema for storing in a relation database
+#### Justification
+The below are some of the reasons that was considered in justifying that schema presented:
+ - The schema should be able to present the most important information to the user in this case optimized for a business analyst without feeling overwhelmed. At same time while providing the developers the possibility to go through the database for development important information.
+ - In as much as possible, keep the relationship or hierarchy structure of the JSON as much as possible.
+ - I advise having a 3 table relationship layout:
+    - **Service_Info** Table: This table will hold the core service events information and also gives an overview of the service carried out. Based on this, it was decided that the table should house the 
+    fields: ```'id', 'time', 'version', 'product', 'backendRegion', 'xRequestId', 'privacyClass', 'flowId', 'contentCategory', 'requestId'```. The `requestId` allows the table to be able to reference service contents data.
+    - **Service_Content** Table: This table is responsible for the contents of the service delivered. It holds the service content data from the JSON data. It contains the following fields : ```'requestId', 'serviceId', 'subId', 'vin', 'serviceProviderName', 'serviceMainType', 'serviceStatus',
+                   'startTime', 'endTime', 'startLocation', 'endLocation'```. The `predictedStartTime & predictedEndTime` is discarded considering there is little difference with the `startTime & endTime`. The information contained in both the `startLocation & endLocation` has been serialized as one single comma separated string like this `longitude,latitude = -122.034363,37.387703`. The reason behind is to reduce query time in fetching location information, and also making it simple to read.
+    - **Service_Dev** Table: This table holds mostly development information about the service which not be that useful to buisness analyst but might still be important for debug, logging or referrence purpose. It is a seperated and is linked to the main Service_Info table using the `id` field. The table holds the following fields: ```'id', 'application', 'applicationVersion', 'buildVersion', 'environment', 'origin', 'channel', 'path', 'method'```                           
+ - 
+ -  
 The flowkey can be used to cluster service transition together. 
 We can use that to track how well a service. For example From 75 - 78 The service was completed successfully.
