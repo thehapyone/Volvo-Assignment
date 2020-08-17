@@ -34,8 +34,7 @@ content_name = "content"
 # Kafka Server Address
 kafka_server = ["localhost:9092"]
 # kafka topic address
-kafka_event_topic8 = "icl.analytics.events.service"
-kafka_event_topic = "python-trial2"
+kafka_event_topic = "icl.analytics.events.service"
 
 # producer instance
 service_producer = None
@@ -111,7 +110,7 @@ if __name__ == '__main__':
 
             print("Producer connected: ", service_producer.bootstrap_connected())
             for i in range(len(json_data)):
-                data, quality_status = quality_checker(json_data[i])
+                data, quality_status = quality_checker(json_data[i+88])
                 print ("sending ... ", i)
                 if quality_status == 0:
                     # means quality check passed. Send the data normally

@@ -45,8 +45,8 @@ The below are some of the reasons that was considered in justifying that schema 
  - In as much as possible, keep the relationship or hierarchy structure of the JSON as much as possible.
  - I advise having a 3 table relationship layout:
     - **Service_Info** Table: This table will hold the core service events information and also gives an overview of the service carried out. Based on this, it was decided that the table should house the 
-    fields: ```'id', 'time', 'version', 'product', 'backendRegion', 'xRequestId', 'privacyClass', 'flowId', 'contentCategory', 'requestId'```. The `requestId` allows the table to be able to reference service contents data.
-    - **Service_Content** Table: This table is responsible for the contents of the service delivered. It holds the service content data from the JSON data. It contains the following fields : ```'requestId', 'serviceId', 'subId', 'vin', 'serviceProviderName', 'serviceMainType', 'serviceStatus',
+    fields: ```'id', 'time', 'version', 'product', 'backendRegion', 'xRequestId', 'privacyClass', 'flowId', 'contentCategory'```. The `id` allows the table to be able to reference service contents data.
+    - **Service_Content** Table: This table is responsible for the contents of the service delivered. It holds the service content data from the JSON data. It contains the following fields : ```'id', 'requestId', 'serviceId', 'subId', 'vin', 'serviceProviderName', 'serviceMainType', 'serviceStatus',
                    'startTime', 'endTime', 'startLocation', 'endLocation'```. The `predictedStartTime & predictedEndTime` is discarded considering there is little difference with the `startTime & endTime`. The information contained in both the `startLocation & endLocation` has been serialized as one single comma separated string like this `longitude,latitude = -122.034363,37.387703`. The reason behind is to reduce query time in fetching location information, and also making it simple to read.
     - **Service_Dev** Table: This table holds mostly development information about the service which not be that useful to buisness analyst but might still be important for debug, logging or referrence purpose. It is a seperated and is linked to the main Service_Info table using the `id` field. The table holds the following fields: ```'id', 'application', 'applicationVersion', 'buildVersion', 'environment', 'origin', 'channel', 'path', 'method'```                           
  - The **flowId** key can be used to cluster service transition together. We can use that to track how well a service events took.
@@ -57,6 +57,20 @@ The implementation code used the service_subset.json file.
 ##### Running
 The code can be run by launching `python3 solution2.py` in the terminal.
 
+## Launching kafka 
+Navigate to the main folder and the terminal can be launched from there.
+--- Starts the zookeeper service:
+`bin/zookeeper-server-start.sh config/zookeeper.properties
+`
+--- Starts the kafka broker service:
+`bin/kafka-server-start.sh config/server.properties
+`
+--- Create topics
+`bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic python-trial
+`
+-- See topics 
+`bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+`
 ## Question 3 - Consumer
 Provide a script that consumes events from the Kafka topic `icl.analytics.events.service` and writes the data to Postgres in your suggested schema.
 
@@ -64,6 +78,48 @@ Provide a script that consumes events from the Kafka topic `icl.analytics.events
 In order to provide support for communicating with Kafka, I am using the python-kafka binding/library.
 The binding can be installed using pip:
 `pip install kafka-python`
+
+### Testing the Events Consumer
+The code for this question is located in `main/src/solution3.py` and can be launched by running `python3 solution3.py` in the terminal. 
+The data received from the Kafka topics is passed into the data transform, to convert the data to the required schema for the database. 
+
+#### Setting up PostgresSQL
+Install postgresql - 
+`sudo apt-get install postgresql libpq-dev postgresql-client postgresql-client-common
+`
+Create a database : example db is "volvo_service_db_ayo"
+```
+Create a database in postgres : createdb "volvo_service_db_ayo"
+```
+Config the postgres database information like dbname, user and password in the `database.ini` configuration file located in `main/src/database.ini`. 
+```
+[postgresql]
+host=localhost
+database=volvo_service_db_ayo
+user=ayo
+password=12345
+port=5432
+```
+#### Setting up python postgres binding
+Install the psycopg2 library:
+`pip install psycopg2`
+
+#### Demo
+With the Producer pushing service contents, the consumer will automatically reads events from the kafka topics and save it to the database "volvo_service_db_ayo"
+The program can be run by launching `python3 solution3.py`. It should be showing something like this:
+```
+Starting up: Task 3 ---- Kafka Service Event Consumer
+Consumer connected:  True
+Connecting to the PostgreSQL database...
+Unable to create table - Probably created -  relation "service_info" already exists
+
+New event - Transformation complete
+Writing to DB
+New event - Transformation complete
+Writing to DB
+New event - Transformation complete
+```
+The content of the database can be viewed with pgAdmin 4 Desktop client
 
 ## Question 4 - Producer
 Provide a script that produces messages to icl.analytics.events.service Kafka topic. You can read messages from `service_subset.json` file.
@@ -168,19 +224,17 @@ Here, I am ensuring I am only formatting known fields in `headers_service_info`.
  ```python
 ['b6c11610-5955-11ea-97f8-4ec01af4c93c', '320807f7-6a05-4353-8b5b-db64eea5b33c', 'f81b8231-02df-448b-8b32-40bba90e009a', 'WNHWH835SFYAMHGWJ5NKK3', 'AIVD', 'DeliverToCar', 'ProviderCancelled', '2020-02-27T11:38:44Z', '2020-02-28T04:00:00Z', 'NULL', 'NULL']
 ```
+and ofcourse, the "NULL" value can be replaced with something else.
 
-## Launching kafka 
---- Starts the zookeeper service:
-bin/zookeeper-server-start.sh config/zookeeper.properties
+## Question 6
+Imagine that you have presented your solution to the extended team and are now responsible for setting up your solution in production. We expect an exponential increase of events received on the topic `icl.analytics.events.service`.
+Elaborate on modifications, components and tools that you would consider in order to guarantee the quality of service and the integrity of data.
 
---- Starts the kafka broker service:
-bin/kafka-server-start.sh config/server.properties
-
---- Create topics
-bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic python-trial
-
--- See topics 
-bin/kafka-topics.sh --list --bootstrap-server localhost:9092
-
--- Launch the demo consumer
-bin/kafka-console-consumer.sh --topic python-trial --from-beginning --bootstrap-server localhost:9092
+### Response
+The below are some modifications, tools, components and others that will be considered in pivoting towards production.
+ - Take advantage of `Kafka Stream` which allows for real time data processing running in a serverless architecture. 
+ We can kafka stream app for the schema data transformation, and for managing data checks and quality as well. External platform like the Apache Griffin can also be incorporated
+ for better data quality and test. 
+ - Use Kafka Connect to move events directly from topics into Postgres database or any other related third party data consumer. This will be way more faster and efficient. 
+ - More data redundancy will be considered.
+ - A better transformation schema can also be considered that will be better than the presented one here.

@@ -24,12 +24,12 @@ json_data = dict()
 
 # Field Names for the Service_Info table
 headers_service_info = ['id', 'time', 'version', 'product', 'backendRegion', 'xRequestId', 'privacyClass', 'flowId',
-                        'contentCategory', 'requestId']
+                        'contentCategory']
 # Field Names for the Service_Dev table
 headers_service_dev = ['id', 'application', 'applicationVersion', 'buildVersion', 'environment', 'origin', 'channel',
                        'path', 'method']
 # Field Names for the Service_Content table
-headers_service_content = ['requestId', 'serviceId', 'subId', 'vin', 'serviceProviderName', 'serviceMainType',
+headers_service_content = ['id', 'requestId', 'serviceId', 'subId', 'vin', 'serviceProviderName', 'serviceMainType',
                            'serviceStatus',
                            'startTime', 'endTime', 'startLocation', 'endLocation']
 
@@ -46,7 +46,7 @@ def extract_table_service(data):
     :param data: Dictionary of values
     :return: list of values
     """
-    return [data[col] if col is not 'requestId' else data[content_name][col] for col in headers_service_info]
+    return [data[col] for col in headers_service_info]
 
 
 def extract_table_service_dev(data):
@@ -59,12 +59,14 @@ def extract_table_service_dev(data):
     return [data[col] for col in headers_service_dev]
 
 
-def parse_content_table(data):
+def parse_content_table(data_in):
     """
     Parse the content JSON data into a structured table for the Service_Content table
     :param data: Dictionary of values with the service content
     :return: list of values
     """
+    # fetch the contents data out
+    data = data_in['content']
     data_keys = [my_keys for my_keys in data.keys()]
     result = [data[col] if col not in content_location_info else parse_location(data, col) for col in
               headers_service_content if
@@ -74,6 +76,9 @@ def parse_content_table(data):
     for loc in content_location_info:
         if loc not in data_keys:
             result.append('NULL')
+
+    ## lastly, insert the id into the data as well
+    result.insert(0, data_in['id'])
     return result
 
 
@@ -104,7 +109,7 @@ if __name__ == '__main__':
         # extract the values for the Service_Dev
         table_service_dev = [extract_table_service_dev(data) for data in json_data]
         # extract out the values for the SERVICE_CONTENT Table
-        table_service_content = [parse_content_table(data['content']) for data in json_data]
+        table_service_content = [parse_content_table(data) for data in json_data]
 
         print(len(table_service_content))
         print(len(table_service_info))
