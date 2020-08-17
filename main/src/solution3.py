@@ -1,8 +1,14 @@
 """
 ##########################################################################
-############# Solution 2 - Implementation Schema for Schema ################################################
+############# Solution 3 - Kafka Service Events Consumer ##################
 ############################################################################
-Implementation Script for transforming the JSON service events to the suggested schema
+This script reads service events from the kafka topic "icl.analytics.events.service"
+as soon as it is available and writes the data into Postgress.
+
+Requirement:
+ - A running kafka and Zookeeper server
+ - an active kafka topic
+ - Postgress
 
 @:author: Ayo Ayibiowu
 @contact: ayo.ayibiowu@outlook.com
@@ -12,112 +18,74 @@ Implementation Script for transforming the JSON service events to the suggested 
 import json
 import os
 from time import sleep
+from kafka import KafkaConsumer
+# import the transformation script
+from solution2 import *
 
 # gets the current working director
 working_dir = os.path.dirname(__file__)
 
-# using the sample.json file
-json_file_path = os.path.join(working_dir, "service_subset.json")
+# Kafka Server Address
+kafka_server = ["localhost:9092"]
+# kafka topic address
+kafka_event_topic8 = "icl.analytics.events.service"
+kafka_event_topic = ["python-trial2"]
 
-# json data
-json_data = dict()
-
-# Field Names for the Service_Info table
-headers_service_info = ['id', 'time', 'version', 'product', 'backendRegion', 'xRequestId', 'privacyClass', 'flowId',
-                        'contentCategory', 'requestId']
-# Field Names for the Service_Dev table
-headers_service_dev = ['id', 'application', 'applicationVersion', 'buildVersion', 'environment', 'origin', 'channel',
-                       'path', 'method']
-# Field Names for the Service_Content table
-headers_service_content = ['requestId', 'serviceId', 'subId', 'vin', 'serviceProviderName', 'serviceMainType',
-                           'serviceStatus',
-                           'startTime', 'endTime', 'startLocation', 'endLocation']
-
-content_location_info = ['startLocation', 'endLocation']
-headers_location = ["longitude", "latitude"]
-# service content key
-content_name = "content"
-
-
-def extract_table_service(data):
-    """
-    Extract out the values for the cols in the suppose Service_Info table.
-    Also add the requestId in the Content into the table as well
-    :param data: Dictionary of values
-    :return: list of values
-    """
-    return [data[col] if col is not 'requestId' else data[content_name][col] for col in headers_service_info]
-
-
-def extract_table_service_dev(data):
-    """
-    Extract out the values for the cols in the suppose Service_Dev table.
-    Also add the requestId in the Content into the table as well
-    :param data: Dictionary of values
-    :return: list of values
-    """
-    return [data[col] for col in headers_service_dev]
-
-
-def parse_content_table(data):
-    """
-    Parse the content JSON data into a structured table for the Service_Content table
-    :param data: Dictionary of values with the service content
-    :return: list of values
-    """
-    data_keys = [my_keys for my_keys in data.keys()]
-    result = [data[col] if col not in content_location_info else parse_location(data, col) for col in
-              headers_service_content if
-              col in data_keys]
-    # filter content without location information and add None for those content
-    # check the data_keys for location info
-    for loc in content_location_info:
-        if loc not in data_keys:
-            result.append('NULL')
-    return result
-
-
-def parse_location(data, col):
-    """
-    Helps in parsing location data containing both longitude and latitude
-    :param data:
-    :return: a serialized location data. For example: -122.410591,37.641449
-    """
-    temp = [data[col][loc_col] for loc_col in headers_location]
-    return ','.join(map(str, temp))
-
+# producer instance
+service_consumer = None
 
 if __name__ == '__main__':
-    print("Starting up: Task 2 ---- Schema Transformation")
+    print("Starting up: Task 3 ---- Kafka Service Event Consumer")
     sleep(1)
 
     try:
-        # now attempt to open the JSON file
-        with open(json_file_path) as service_json:
-            json_data = json.load(service_json)
-
-        print(type(json_data))
-        # print(json_data['content'])
-
-        # extract the values for the Service_Info
-        table_service_info = [extract_table_service(data) for data in json_data]
-        # extract the values for the Service_Dev
-        table_service_dev = [extract_table_service_dev(data) for data in json_data]
-        # extract out the values for the SERVICE_CONTENT Table
-        table_service_content = [parse_content_table(data['content']) for data in json_data]
-
-        print(len(table_service_content))
-        print(len(table_service_info))
-        print(len(table_service_dev))
-
-        print(table_service_content)
-        #
-
+        # create the Producer instance
+        service_consumer = KafkaConsumer(bootstrap_servers=kafka_server, auto_offset_reset='earliest',
+                                         enable_auto_commit=True, auto_commit_interval_ms=500, group_id='my-group',
+                                             value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+        # subscribe to topic
+        service_consumer.subscribe(topics=kafka_event_topic)
+        print("Consumer connected: ", service_consumer.bootstrap_connected())
 
     except KeyboardInterrupt:
         print("Keyboard Interrupt ")
 
     except Exception as e:
         print("Exception occurred - ", e)
+
+    else:
+        while True:
+            try:
+                # read the next message
+                data = (next(service_consumer)).value
+                # here check for data quality
+                #### check data
+
+                # extract the values for the Service_Info
+                table_service_info = extract_table_service(data)
+                # extract the values for the Service_Dev
+                table_service_dev = extract_table_service_dev(data)
+                # extract out the values for the SERVICE_CONTENT Table
+                table_service_content = parse_content_table(data['content'])
+
+                print(len(table_service_content))
+                print(len(table_service_info))
+                print(len(table_service_dev))
+
+                print(table_service_info)
+                print("-----------------------------------------")
+                print(table_service_content)
+                print("-----------------------------------------")
+                print(table_service_dev)
+
+
+            except KeyboardInterrupt:
+                print("Keyboard Interrupt - Shutting down ")
+                break
+
+            except Exception as e:
+                print("Exception occurred - ", e)
+                break
+
 
 print("Done here")

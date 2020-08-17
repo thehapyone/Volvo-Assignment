@@ -35,7 +35,7 @@ content_name = "content"
 kafka_server = ["localhost:9092"]
 # kafka topic address
 kafka_event_topic8 = "icl.analytics.events.service"
-kafka_event_topic = "python-trial"
+kafka_event_topic = "python-trial2"
 
 # producer instance
 service_producer = None
