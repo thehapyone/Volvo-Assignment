@@ -3,3 +3,6 @@
 [2020-08-17 02:01:31,690] INFO [GroupCoordinator 0]: Assignment received from leader for group console-consumer-23763 for generation 1 (kafka.coordinator.group.GroupCoordinator)
 [2020-08-17 02:01:45,764] INFO [GroupMetadataManager brokerId=0] Removed 0 expired offsets in 0 milliseconds. (kafka.coordinator.group.GroupMetadataManager)
 [2020-08-17 02:11:45,764] INFO [GroupMetadataManager brokerId=0] Removed 0 expired offsets in 0 milliseconds. (kafka.coordinator.group.GroupMetadataManager)
+[2020-08-17 02:21:45,764] INFO [GroupMetadataManager brokerId=0] Removed 0 expired offsets in 0 milliseconds. (kafka.coordinator.group.GroupMetadataManager)
+[2020-08-17 02:31:45,764] INFO [GroupMetadataManager brokerId=0] Removed 0 expired offsets in 0 milliseconds. (kafka.coordinator.group.GroupMetadataManager)
+[2020-08-17 02:41:45,764] INFO [GroupMetadataManager brokerId=0] Removed 0 expired offsets in 0 milliseconds. (kafka.coordinator.group.GroupMetadataManager)

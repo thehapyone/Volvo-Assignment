@@ -110,9 +110,9 @@ if __name__ == '__main__':
                                              value_serializer=lambda x: json.dumps(x).encode('utf-8'), retries=3)
 
             print("Producer connected: ", service_producer.bootstrap_connected())
-            for i in range(100):
+            for i in range(len(json_data)):
                 data, quality_status = quality_checker(json_data[i])
-                print ("sending ... ", 1)
+                print ("sending ... ", i)
                 if quality_status == 0:
                     # means quality check passed. Send the data normally
                     service_producer.send(kafka_event_topic, value=data)

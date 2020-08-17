@@ -63,22 +63,41 @@ Provide a script that consumes events from the Kafka topic `icl.analytics.events
 ### Python Communication with Kafka
 In order to provide support for communicating with Kafka, I am using the python-kafka binding/library.
 The binding can be installed using pip:
+`pip install kafka-python`
 
 ## Question 4 - Producer
 Provide a script that produces messages to icl.analytics.events.service Kafka topic. You can read messages from `service_subset.json` file.
 
-### Python Communication with Kafka
-In order to provide support for communicating with Kafka, I am using the python-kafka binding/library.
-The binding can be installed using pip:
-`pip install kafka-python
-`
-### Data Quality checks ideas
- - Ensure the expected keys are received in the data packet. No more or less.
- - Alerts when field name are swapped leading to wrong ordering.
+### Testing the Events Producer
+The code for this question is located in `main/src/solution4.py` and can be launched by running `python3 solution4.py` in the terminal.
+The program should and starting sending events loaded from the `service_subset.json` file which is located in `main/src/service_subset.json`. 
+The json file can be modified to test the quality checker. NOTE: The json file has to be modified before running the program and not during the program execution.
+The program should produce an output similar to the below:
+```
+Starting up: Task 4 ---- Kafka Service Event Producer
+JSON File loaded
+Producer connected:  True
+sending ...  0
+sending ...  1
+sending ...  2
+sending ...  3
+sending ...  4
+sending ...  5
+```
+## Question 5
+What quality checks would you implement in order to mitigate issues with the data at arrival and how would you validate the output of your transforms? 
+(Part of your answer may be provided in the code from questions 3-4)
+
+### Ensuring Data Quality
+The below are data quality that can be implemented especially on the producer of the events. Some of these quality checks are implemented
+in the [Question 4](#question-4---producer) code in the `quality_checker` function.
+ - Ensure the expected keys are received in the data packet. No more or No less. (_**Implemented in Question 4**_)
+ - Alerts when field name are swapped leading to wrong ordering. (_**Implemented in Question 4**_ - A hash value is generated for the keys. Hash value is a numeric value of a fixed length that uniquely identifies data. 
+ Both the expected key layout and the current key layout is compared to each other.)
  - Alerts when data type of a specified field changes 
- - Alerts when data of specified field is missing
- - Alerts when the id is not unique. The id is expected to be unique.
- - We can setup a JSON schema to evaluate that the JSON Field data have the right datatype, have an enforced field. A schema for checking the datatype for the service data is shown below:
+ - Alerts when data of any field in the content section have values missing. (_**Implemented in Question 4**_ : Currently, achieved this by checking if the field value is empty)
+ - Alerts when the id is not unique. The id is expected to be unique. This can be done with Hash or by tracking previous id
+ - Using JSON Schema for datatype validation: We can setup a JSON schema to evaluate that the JSON Field data have the right datatype, have an enforced field. A schema for checking the datatype for the service data is shown below:
 ```yaml
 {
   "type": "object",
@@ -136,7 +155,7 @@ The binding can be installed using pip:
 
 For more powerful quality checks, one can consider:
  - Apache Griffin
- - 
+
 ## Launching kafka 
 --- Starts the zookeeper service:
 bin/zookeeper-server-start.sh config/zookeeper.properties
