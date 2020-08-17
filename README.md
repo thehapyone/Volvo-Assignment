@@ -238,3 +238,8 @@ The below are some modifications, tools, components and others that will be cons
  - Use Kafka Connect to move events directly from topics into Postgres database or any other related third party data consumer. This will be way more faster and efficient. 
  - More data redundancy will be considered.
  - A better transformation schema can also be considered that will be better than the presented one here.
+ 
+
+## More Information
+Please, if you run into issues running the scripts in this work please get in touch with me. 
+Thank you.
