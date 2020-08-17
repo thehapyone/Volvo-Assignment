@@ -79,7 +79,7 @@ The binding can be installed using pip:
  - Alerts when data of specified field is missing
  - Alerts when the id is not unique. The id is expected to be unique.
  - We can setup a JSON schema to evaluate that the JSON Field data have the right datatype, have an enforced field. A schema for checking the datatype for the service data is shown below:
-```
+```yaml
 {
   "type": "object",
   "properties": {
