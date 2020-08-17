@@ -156,6 +156,19 @@ in the [Question 4](#question-4---producer) code in the `quality_checker` functi
 For more powerful quality checks, one can consider:
  - Apache Griffin
 
+### Validating the Transformation
+ - One of the ways I am currently validating the output of my transformation from is by ensuring that transformation is carried on a predefined fields and 
+ not dynamic fields as shown in the Service_Info Table Transform code snapshot below:
+ ```python
+    return [data[col] if col is not 'requestId' else data[content_name][col] for col in headers_service_info]
+```
+Here, I am ensuring I am only formatting known fields in `headers_service_info`. In this way, I can ensure a target schema will always be matched. 
+
+ - In the Service Content, where there is a possibility of dynamic field from the JSON data in this case of location. Sometimes, the location information is not present in the service events data. In order to ensure consistent schema and transformation, I detect when the location data is not available and then create "NULL" value for that service record. A sample record of the Service_Content table without location data is shown below:
+ ```python
+['b6c11610-5955-11ea-97f8-4ec01af4c93c', '320807f7-6a05-4353-8b5b-db64eea5b33c', 'f81b8231-02df-448b-8b32-40bba90e009a', 'WNHWH835SFYAMHGWJ5NKK3', 'AIVD', 'DeliverToCar', 'ProviderCancelled', '2020-02-27T11:38:44Z', '2020-02-28T04:00:00Z', 'NULL', 'NULL']
+```
+
 ## Launching kafka 
 --- Starts the zookeeper service:
 bin/zookeeper-server-start.sh config/zookeeper.properties
